@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sql-coach-forge — paste a query, get coached</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo">SQL·Coach</span>
+    <span class="tag">local-first SQL query coach</span>
+  </div>
+  <nav>
+    <a href="#analyze">Analyze</a>
+    <a href="#history">History</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<main>
+  <section id="analyze" class="hero">
+    <h1>Paste a query. Get coached on correctness, performance, and style.</h1>
+    <p class="lede">
+      Drop a SQL query (with optional flavor + context like "Snowflake on a 50M row events table, prod warehouse").
+      You'll get a 0–100 readiness score, anti-pattern flags with fixes, an execution-plan sketch, suggested indexes,
+      refactor diffs, and flavor-aware hints. Local. No LLM. No API keys.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>1. Query</h2>
+        <textarea id="query" rows="14" spellcheck="false" placeholder="-- paste your SQL here&#10;select ..."></textarea>
+        <label class="field">
+          <span>Flavor hint (optional)</span>
+          <select id="flavor">
+            <option value="">auto-detect</option>
+            <option>snowflake</option><option>bigquery</option><option>postgres</option>
+            <option>sqlserver</option><option>mysql</option><option>oracle</option>
+            <option>duckdb</option><option>databricks</option><option>spark</option>
+            <option>redshift</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Context (optional — "50M row events table, prod warehouse, daily batch, slow on month-end")</span>
+          <input id="context" type="text" placeholder="e.g. Snowflake on 50M events table, prod warehouse, daily batch" />
+        </label>
+        <div class="row">
+          <button id="run" class="primary">Analyze</button>
+          <button id="sample" class="ghost">Load sample (slow query)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Verdict</h2>
+        <div id="verdict" class="empty">Run an analysis to see your score.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" class="results hidden">
+    <div class="card">
+      <h2>3. Scores</h2>
+      <div id="scores" class="scores"></div>
+      <div id="tip" class="tip"></div>
+    </div>
+
+    <div class="card">
+      <h2>4. Findings</h2>
+      <div id="findings"></div>
+    </div>
+
+    <div class="card">
+      <h2>5. Execution plan (pseudo)</h2>
+      <div id="plan"></div>
+    </div>
+
+    <div class="card">
+      <h2>6. Suggested indexes</h2>
+      <div id="indexes"></div>
+    </div>
+
+    <div class="card">
+      <h2>7. Refactors</h2>
+      <div id="refactors"></div>
+    </div>
+
+    <div class="card">
+      <h2>8. Flavor hints</h2>
+      <div id="flavor-hints"></div>
+    </div>
+
+    <div class="card">
+      <h2>9. Save / review</h2>
+      <div class="row">
+        <button id="save" class="primary">Save session</button>
+        <span id="saved" class="muted"></span>
+      </div>
+      <div id="saved-detail" class="hidden">
+        <label class="field">
+          <span>Self-rating (1-5)</span>
+          <input id="rating" type="number" min="1" max="5" />
+        </label>
+        <label class="field">
+          <span>Notes</span>
+          <textarea id="notes" rows="3" placeholder="What you actually did, what you learned..."></textarea>
+        </label>
+        <div class="row">
+          <button id="patch" class="primary">Save rating + notes</button>
+          <button id="export-md" class="ghost">Export Markdown</button>
+          <button id="export-json" class="ghost">Export JSON</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="history" class="history">
+    <h2>Replay history</h2>
+    <div id="sessions" class="sessions">Loading…</div>
+  </section>
+
+  <section id="about" class="about">
+    <h2>About</h2>
+    <p>
+      <strong>sql-coach-forge</strong> is a static-pattern SQL query coach. It runs locally, ships with ~30 anti-pattern
+      rules, and never sends your SQL anywhere. Use it before merging a PR, after a slow EXPLAIN, or as a teaching
+      tool when reviewing someone else's query.
+    </p>
+    <ul>
+      <li>Backend: Flask + SQLite (one file: <code>sql_coach.sqlite3</code>)</li>
+      <li>Frontend: vanilla JS + CSS, dark theme</li>
+      <li>Anti-patterns: 30+ regex-driven rules with severity and per-rule fixes</li>
+      <li>Execution plan: pseudo-step sketch, not engine EXPLAIN output</li>
+      <li>Refactor library: 8+ before/after diffs, triggered by the matching anti-pattern</li>
+      <li>Flavor hints: 11 dialects (Snowflake, BigQuery, Postgres, SQL Server, MySQL, Oracle, DuckDB, Databricks, Spark, Redshift, generic)</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <span>Built for engineers · local-first · no API keys</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
